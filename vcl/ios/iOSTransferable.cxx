@@ -1,4 +1,4 @@
-/* -*- Mode: C++; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4; fill-column: 100 -*- */
+/* -*- Mode: C++; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
 /*
  * This file is part of the LibreOffice project.
  *
@@ -19,19 +19,20 @@
 
 #include <sal/config.h>
 
+#include <sal/log.hxx>
+#include <utility>
+
 #include <com/sun/star/datatransfer/UnsupportedFlavorException.hpp>
 #include <com/sun/star/lang/IllegalArgumentException.hpp>
-#include <sal/log.hxx>
 #include <sal/types.h>
 #include <osl/diagnose.h>
-
-#include <quartz/utils.h>
 
 #include "iOSTransferable.hxx"
 
 #include "DataFlavorMapping.hxx"
 
-using namespace osl;
+#include <quartz/utils.h>
+
 using namespace cppu;
 using namespace com::sun::star::uno;
 using namespace com::sun::star::datatransfer;
@@ -39,17 +40,15 @@ using namespace com::sun::star::lang;
 
 namespace
 {
-bool isValidFlavor(const DataFlavor& aFlavor)
+bool isValidFlavor( const DataFlavor& aFlavor )
 {
     size_t len = aFlavor.MimeType.getLength();
     Type dtype = aFlavor.DataType;
-    return ((len > 0)
-            && ((dtype == cppu::UnoType<Sequence<sal_Int8>>::get())
-                || (dtype == cppu::UnoType<OUString>::get())));
+    return ((len > 0) && ((dtype == cppu::UnoType<Sequence<sal_Int8>>::get()) || (dtype == cppu::UnoType<OUString>::get())));
 }
 
-bool cmpAllContentTypeParameter(const Reference<XMimeContentType>& xLhs,
-                                const Reference<XMimeContentType>& xRhs)
+bool cmpAllContentTypeParameter(const Reference<XMimeContentType> & xLhs,
+                                const Reference<XMimeContentType> & xRhs)
 {
     Sequence<OUString> xLhsFlavors = xLhs->getParameters();
     Sequence<OUString> xRhsFlavors = xRhs->getParameters();
@@ -74,7 +73,7 @@ bool cmpAllContentTypeParameter(const Reference<XMimeContentType>& xLhs,
             }
         }
     }
-    catch (IllegalArgumentException&)
+    catch(IllegalArgumentException&)
     {
         return false;
     }
@@ -84,58 +83,71 @@ bool cmpAllContentTypeParameter(const Reference<XMimeContentType>& xLhs,
 
 } // unnamed namespace
 
-iOSTransferable::iOSTransferable(const Reference<XMimeContentTypeFactory>& rXMimeCntFactory,
-                                 std::shared_ptr<DataFlavorMapper> pDataFlavorMapper)
-    : mrXMimeCntFactory(rXMimeCntFactory)
-    , mDataFlavorMapper(pDataFlavorMapper)
+iOSTransferable::iOSTransferable(const Reference<XMimeContentTypeFactory> & rXMimeCntFactory,
+                                 DataFlavorMapperPtr_t pDataFlavorMapper,
+                                 NSPasteboard* pasteboard) :
+    mrXMimeCntFactory(rXMimeCntFactory),
+    mDataFlavorMapper(pDataFlavorMapper),
+    mPasteboard(pasteboard)
 {
+    [mPasteboard retain];
+
     initClipboardItemList();
 }
 
-iOSTransferable::~iOSTransferable() {}
+iOSTransferable::~iOSTransferable()
+{
+    [mPasteboard release];
+}
 
-Any SAL_CALL iOSTransferable::getTransferData(const DataFlavor& aFlavor)
+Any SAL_CALL iOSTransferable::getTransferData( const DataFlavor& aFlavor )
 {
     if (!isValidFlavor(aFlavor) || !isDataFlavorSupported(aFlavor))
     {
-        throw UnsupportedFlavorException("Unsupported data flavor",
+        throw UnsupportedFlavorException("AquaClipboard: Unsupported data flavor",
                                          static_cast<XTransferable*>(this));
     }
 
     bool bInternal(false);
-    NSString* sysFormat = (aFlavor.MimeType.startsWith("image/png"))
-                              ? DataFlavorMapper::openOfficeImageToSystemFlavor()
-                              : mDataFlavorMapper->openOfficeToSystemFlavor(aFlavor, bInternal);
+    NSString const * sysFormat =
+        (aFlavor.MimeType.startsWith("image/png"))
+            ? DataFlavorMapper::openOfficeImageToSystemFlavor( mPasteboard )
+            : mDataFlavorMapper->openOfficeToSystemFlavor(aFlavor, bInternal);
     DataProviderPtr_t dp;
 
-    NSData* sysData = [[UIPasteboard generalPasteboard] dataForPasteboardType:sysFormat];
-    if (!sysData)
+    SAL_WNODEPRECATED_DECLARATIONS_PUSH
+    // "'NSFilenamesPboardType' is deprecated: first deprecated in macOS 10.14 - Create multiple
+    // pasteboard items with NSPasteboardTypeFileURL or kUTTypeFileURL instead"
+    if ([sysFormat caseInsensitiveCompare: NSFilenamesPboardType] == NSOrderedSame)
+        SAL_WNODEPRECATED_DECLARATIONS_POP
+        {
+            NSArray* sysData = [mPasteboard propertyListForType: const_cast<NSString *>(sysFormat)];
+            dp = DataFlavorMapper::getDataProvider(sysFormat, sysData);
+        }
+    else
     {
-        // Related: gh#5908 throw an exception if the data flavor is nil
-        // If nil is returned, it can mean that the user has selected the
-        // "disallow" option and so we can't access the current clipboard
-        // contents. Also, by throwing an exception, the "allow or disallow"
-        // dialog will display again the next time the user tries to paste.
-        throw UnsupportedFlavorException("Data flavor is nil", static_cast<XTransferable*>(this));
+        NSData* sysData = [mPasteboard dataForType: const_cast<NSString *>(sysFormat)];
+        dp = DataFlavorMapper::getDataProvider(sysFormat, sysData);
     }
 
-    dp = DataFlavorMapper::getDataProvider(sysFormat, sysData);
-
-    if (dp.get() == nullptr)
+    if (!dp)
     {
-        throw UnsupportedFlavorException("Unsupported data flavor",
+        throw UnsupportedFlavorException("AquaClipboard: Unsupported data flavor",
                                          static_cast<XTransferable*>(this));
     }
 
     return dp->getOOoData();
 }
 
-Sequence<DataFlavor> SAL_CALL iOSTransferable::getTransferDataFlavors() { return mFlavorList; }
+Sequence< DataFlavor > SAL_CALL iOSTransferable::getTransferDataFlavors(  )
+{
+    return mFlavorList;
+}
 
 sal_Bool SAL_CALL iOSTransferable::isDataFlavorSupported(const DataFlavor& aFlavor)
 {
-    for (sal_Int32 i = 0; i < mFlavorList.getLength(); i++)
-        if (compareDataFlavors(aFlavor, mFlavorList[i]))
+    for (const DataFlavor& rFlavor : std::as_const(mFlavorList))
+        if (compareDataFlavors(aFlavor, rFlavor))
             return true;
 
     return false;
@@ -143,14 +155,16 @@ sal_Bool SAL_CALL iOSTransferable::isDataFlavorSupported(const DataFlavor& aFlav
 
 void iOSTransferable::initClipboardItemList()
 {
-    NSArray* pboardFormats = [[UIPasteboard generalPasteboard] pasteboardTypes];
+    NSArray* pboardFormats = [mPasteboard types];
 
     if (pboardFormats == nullptr)
     {
-        throw RuntimeException("Cannot get clipboard data", static_cast<XTransferable*>(this));
+        throw RuntimeException("AquaClipboard: Cannot get clipboard data",
+                               static_cast<XTransferable*>(this));
     }
 
-    SAL_INFO("vcl.ios.clipboard", "Types on clipboard: " << NSStringArrayToOUString(pboardFormats));
+    SAL_INFO("vcl.osx.clipboard", "Types on pasteboard: " << NSStringArrayToOUString(pboardFormats));
+
 
     mFlavorList = mDataFlavorMapper->typesArrayToFlavorSequence(pboardFormats);
 }
@@ -159,22 +173,22 @@ void iOSTransferable::initClipboardItemList()
    and the number of parameter and all parameter values do match otherwise false
    is returned.
  */
-bool iOSTransferable::compareDataFlavors(const DataFlavor& lhs, const DataFlavor& rhs)
+bool iOSTransferable::compareDataFlavors(const DataFlavor& lhs, const DataFlavor& rhs )
 {
     try
     {
         Reference<XMimeContentType> xLhs(mrXMimeCntFactory->createMimeContentType(lhs.MimeType));
         Reference<XMimeContentType> xRhs(mrXMimeCntFactory->createMimeContentType(rhs.MimeType));
 
-        if (!xLhs->getFullMediaType().equalsIgnoreAsciiCase(xRhs->getFullMediaType())
-            || !cmpAllContentTypeParameter(xLhs, xRhs))
+        if (!xLhs->getFullMediaType().equalsIgnoreAsciiCase(xRhs->getFullMediaType()) ||
+            !cmpAllContentTypeParameter(xLhs, xRhs))
         {
             return false;
         }
     }
-    catch (IllegalArgumentException&)
+    catch( IllegalArgumentException& )
     {
-        OSL_FAIL("Invalid content type detected");
+        OSL_FAIL( "Invalid content type detected" );
         return false;
     }
 

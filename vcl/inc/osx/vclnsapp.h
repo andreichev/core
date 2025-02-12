@@ -57,7 +57,7 @@ class AquaSalFrame;
 -(void)addFallbackMenuItem: (NSMenuItem*)pNewItem;
 -(void)removeFallbackMenuItem: (NSMenuItem*)pOldItem;
 -(void)addDockMenuItem: (NSMenuItem*)pNewItem;
-#if !HAVE_FEATURE_MACOSX_SANDBOX
+#if 0
 -(void)applicationWillBecomeActive: (NSNotification *)pNotification;
 -(void)applicationWillResignActive: (NSNotification *)pNotification;
 #endif

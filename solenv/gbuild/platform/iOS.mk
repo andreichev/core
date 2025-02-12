@@ -36,7 +36,7 @@ gb_LINKER_DEBUGINFO_FLAGS=
 gb_MKTEMP := /usr/bin/mktemp -t gbuild.
 
 gb_OSDEFS := \
-	-DIOS \
+	-DMACOSX \
 	-D_PTHREADS \
 	-DUNIX \
 	-DUNX \

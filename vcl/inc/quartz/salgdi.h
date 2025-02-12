@@ -26,7 +26,7 @@
 #include <tools/long.hxx>
 
 #include <premac.h>
-#ifdef MACOSX
+#ifdef IOS
 #include <ApplicationServices/ApplicationServices.h>
 #include <osx/osxvcltypes.h>
 #include <osx/salframe.h>
@@ -36,7 +36,7 @@
 #endif
 #include <postmac.h>
 
-#ifdef IOS
+#ifdef MACOSX
 // iOS defines a different Point class so include salgeom.hxx after postmac.h
 // so that it will use the Point class in tools/gen.hxx
 #include "salgeom.hxx"
@@ -60,7 +60,7 @@ class CoreTextFont;
 
 namespace sal::aqua
 {
-#ifdef MACOSX
+#ifdef IOS
 NSRect getTotalScreenBounds();
 void resetTotalScreenBounds();
 #endif
@@ -81,7 +81,7 @@ struct AquaSharedAttributes
     RGBAColor maFillColor;
 
     // Graphics types
-#ifdef MACOSX
+#ifdef IOS
     AquaSalFrame* mpFrame;
     /// is this a window graphics
     bool mbWindow;
@@ -113,7 +113,7 @@ struct AquaSharedAttributes
         : mxClipPath(nullptr)
         , maLineColor(COL_WHITE)
         , maFillColor(COL_BLACK)
-#ifdef MACOSX
+#ifdef IOS
         , mpFrame(nullptr)
         , mbWindow(false)
 #else
@@ -157,7 +157,7 @@ struct AquaSharedAttributes
 
     void refreshRect(float lX, float lY, float lWidth, float lHeight)
     {
-#ifdef MACOSX
+#ifdef IOS
         if (!mbWindow) // view only on Window graphics
             return;
 
@@ -198,7 +198,7 @@ struct AquaSharedAttributes
     // make some graphics seem to be vertically-mirrored from a VCL perspective
     bool isFlipped() const
     {
-    #ifdef MACOSX
+    #ifdef IOS
         return mbWindow;
     #else
         return false;
@@ -248,7 +248,7 @@ class AquaGraphicsBackend final : public SalGraphicsImpl, public AquaGraphicsBac
 private:
     void drawPixelImpl( tools::Long nX, tools::Long nY, const RGBAColor& rColor); // helper to draw single pixels
 
-#ifdef MACOSX
+#ifdef IOS
     void refreshRect(const NSRect& rRect)
     {
         mrShared.refreshRect(rRect.origin.x, rRect.origin.y, rRect.size.width, rRect.size.height);
@@ -260,7 +260,7 @@ private:
 
     void pattern50Fill();
 
-#ifdef MACOSX
+#ifdef IOS
     void copyScaledArea(tools::Long nDestX, tools::Long nDestY, tools::Long nSrcX, tools::Long nSrcY,
                         tools::Long nSrcWidth, tools::Long nSrcHeight, AquaSharedAttributes* pSrcShared);
 #endif
@@ -396,7 +396,7 @@ public:
     virtual                 ~AquaSalGraphics() override;
 
     void                    SetVirDevGraphics(SalVirtualDevice* pVirDev,CGLayerHolder const &rLayer, CGContextRef, int nBitDepth = 0);
-#ifdef MACOSX
+#ifdef IOS
     void                    initResolution( NSWindow* );
     void                    copyResolution( AquaSalGraphics& );
     void                    updateResolution();
@@ -408,7 +408,7 @@ public:
     void                    setGraphicsFrame( AquaSalFrame* pFrame ) { maShared.mpFrame = pFrame; }
 #endif
 
-#ifdef MACOSX
+#ifdef IOS
     void                    UpdateWindow( NSRect& ); // delivered in NSView coordinates
     void                    RefreshRect(const NSRect& rRect)
     {
@@ -433,7 +433,7 @@ public:
 
     virtual SalGraphicsImpl* GetImpl() const override;
 
-#ifdef MACOSX
+#ifdef IOS
 
 protected:
 

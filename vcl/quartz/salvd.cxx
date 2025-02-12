@@ -23,7 +23,7 @@
 #include <vcl/svapp.hxx>
 #include <vcl/sysdata.hxx>
 
-#ifdef MACOSX
+#ifdef IOS
 #include <osx/salinst.h>
 #include <osx/saldata.hxx>
 #include <osx/salframe.h>
@@ -45,7 +45,7 @@ std::unique_ptr<SalVirtualDevice> AquaSalInstance::CreateVirtualDevice( SalGraph
     // #i92075# can be called first in a thread
     SalData::ensureThreadAutoreleasePool();
 
-#ifdef IOS
+#ifdef MACOSX
     if( pData )
     {
         return std::unique_ptr<SalVirtualDevice>(new AquaSalVirtualDevice( static_cast< AquaSalGraphics* >(&rGraphics),
@@ -117,7 +117,7 @@ AquaSalVirtualDevice::AquaSalVirtualDevice(
         mpGraphics = new AquaSalGraphics(); // never fails
         switch (eFormat)
         {
-#ifdef IOS
+#ifdef MACOSX
             case DeviceFormat::GRAYSCALE:
                 mnBitmapDepth = 8;
                 break;
@@ -126,7 +126,7 @@ AquaSalVirtualDevice::AquaSalVirtualDevice(
                 mnBitmapDepth = 0;
                 break;
         }
-#ifdef MACOSX
+#ifdef IOS
         // inherit resolution from reference device
         if( pGraphic )
         {

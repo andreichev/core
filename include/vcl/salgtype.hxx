@@ -29,7 +29,7 @@ enum class DeviceFormat {
                             NONE = -1,
                             WITHOUT_ALPHA = 0,
                             WITH_ALPHA = 1,
-#ifdef IOS
+#ifdef MACOSX
                             GRAYSCALE = 8
 #endif
                         };

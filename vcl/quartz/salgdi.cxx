@@ -18,6 +18,7 @@
  */
 
 #include <sal/config.h>
+#include <quartz/salgdi.h>
 
 #include <memory>
 
@@ -48,11 +49,11 @@
 #include <font/fontsubstitution.hxx>
 #include <font/PhysicalFontCollection.hxx>
 
-#ifdef MACOSX
+#ifdef IOS
 #include <osx/salframe.h>
 #endif
 #include <quartz/utils.h>
-#ifdef IOS
+#ifdef MACOSX
 #include <ios/iosinst.hxx>
 #endif
 #include <sallayout.hxx>
@@ -167,7 +168,7 @@ AquaSalGraphics::~AquaSalGraphics()
 
     maShared.mpXorEmulation.reset();
 
-#ifdef IOS
+#ifdef MACOSX
     if (maShared.mbForeignContext)
         return;
 #endif
@@ -176,7 +177,7 @@ AquaSalGraphics::~AquaSalGraphics()
         CGLayerRelease(maShared.maLayer.get());
     }
     else if (maShared.maContextHolder.isSet()
-#ifdef MACOSX
+#ifdef IOS
              && maShared.mbWindow
 #endif
              )
@@ -329,7 +330,7 @@ void AquaSalGraphics::DrawTextLayout(const GenericSalLayout& rLayout)
 
 void AquaGraphicsBackend::drawTextLayout(const GenericSalLayout& rLayout)
 {
-#ifdef IOS
+#ifdef MACOSX
     if (!mrShared.checkContext())
     {
         SAL_WARN("vcl.quartz", "AquaSalGraphics::DrawTextLayout() without context");
@@ -505,7 +506,7 @@ void AquaSalGraphics::WindowBackingPropertiesChanged()
     mpBackend->WindowBackingPropertiesChanged();
 }
 
-#ifdef IOS
+#ifdef MACOSX
 
 bool AquaSharedAttributes::checkContext()
 {

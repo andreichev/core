@@ -19,7 +19,7 @@
 
 #pragma once
 
-#ifdef IOS
+#ifdef MACOSX
 #error This file is not for iOS
 #endif
 

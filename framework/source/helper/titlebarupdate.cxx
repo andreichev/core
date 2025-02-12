@@ -118,7 +118,7 @@ void TitleBarUpdate::impl_updateApplicationID(const css::uno::Reference< css::fr
     if ( ! xWindow.is() )
         return;
 
-#if !defined(MACOSX)
+#if !defined(IOS)
     OUString sApplicationID;
     try
     {
@@ -213,7 +213,7 @@ void TitleBarUpdate::impl_forceUpdate()
 
     impl_updateIcon  (xFrame);
     impl_updateTitle (xFrame);
-#if !defined(MACOSX)
+#if !defined(IOS)
     impl_updateApplicationID (xFrame);
 #endif
 }

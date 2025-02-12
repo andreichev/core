@@ -378,7 +378,7 @@ IMPL_LINK_NOARG(CloseDispatcher, impl_asyncCallback, LinkParamNone*, void)
     if (bCloseFrame)
         bSuccess = implts_closeFrame();
     else if (bEstablishBackingMode)
-    #if defined MACOSX
+    #if defined IOS
     {
         // on mac close down, quickstarter keeps the process alive
         // however if someone has shut down the quickstarter

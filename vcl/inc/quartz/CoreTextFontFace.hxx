@@ -24,7 +24,7 @@
 #include <vector>
 
 #include <premac.h>
-#ifdef MACOSX
+#ifdef IOS
 #include <ApplicationServices/ApplicationServices.h>
 #include <osx/osxvcltypes.h>
 #include <osx/salframe.h>

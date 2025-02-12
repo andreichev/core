@@ -24,20 +24,20 @@
 
 #include <headless/svpframe.hxx>
 #include <headless/svpinst.hxx>
-#ifndef IOS
+#ifndef MACOSX
 #include <headless/svpgdi.hxx>
 #endif
 #include <salsys.hxx>
 
 #include <basegfx/vector/b2ivector.hxx>
 
-#ifndef IOS
+#ifndef MACOSX
 #include <cairo.h>
 #endif
 
 SvpSalFrame* SvpSalFrame::s_pFocusFrame = nullptr;
 
-#ifdef IOS
+#ifdef MACOSX
 #define SvpSalGraphics AquaSalGraphics
 #endif
 
@@ -48,7 +48,7 @@ SvpSalFrame::SvpSalFrame( SvpSalInstance* pInstance,
     m_pParent( static_cast<SvpSalFrame*>(pParent) ),
     m_nStyle( nSalFrameStyle ),
     m_bVisible( false ),
-#ifndef IOS
+#ifndef MACOSX
     m_pSurface( nullptr ),
 #endif
     m_nMinWidth( 0 ),
@@ -56,7 +56,7 @@ SvpSalFrame::SvpSalFrame( SvpSalInstance* pInstance,
     m_nMaxWidth( 0 ),
     m_nMaxHeight( 0 )
 {
-#ifdef IOS
+#ifdef MACOSX
     // Nothing
 #elif defined ANDROID
     // Nothing
@@ -109,7 +109,7 @@ SvpSalFrame::~SvpSalFrame()
             }
         }
     }
-#ifndef IOS
+#ifndef MACOSX
     if (m_pSurface)
         cairo_surface_destroy(m_pSurface);
 #endif
@@ -158,7 +158,7 @@ basegfx::B2IVector SvpSalFrame::GetSurfaceFrameSize() const
 SalGraphics* SvpSalFrame::AcquireGraphics()
 {
     SvpSalGraphics* pGraphics = new SvpSalGraphics();
-#ifndef IOS
+#ifndef MACOSX
     pGraphics->setSurface(m_pSurface, GetSurfaceFrameSize());
 #endif
     m_aGraphics.push_back( pGraphics );
@@ -264,7 +264,7 @@ void SvpSalFrame::SetPosSize( tools::Long nX, tools::Long nY, tools::Long nWidth
         if (m_nMinHeight > 0 && maGeometry.height() < m_nMinHeight)
             maGeometry.setHeight(m_nMinHeight);
     }
-#ifndef IOS
+#ifndef MACOSX
     basegfx::B2IVector aFrameSize = GetSurfaceFrameSize();
     if (!m_pSurface || cairo_image_surface_get_width(m_pSurface) != aFrameSize.getX() ||
                        cairo_image_surface_get_height(m_pSurface) != aFrameSize.getY() )
@@ -437,7 +437,7 @@ void SvpSalFrame::UpdateSettings( AllSettings& rSettings )
             bFreeGraphics = true;
         }
         rSettings.SetStyleSettings(aStyleSettings);
-#ifndef IOS // For now...
+#ifndef MACOSX // For now...
         pGraphics->UpdateSettings(rSettings);
 #endif
         if (bFreeGraphics)

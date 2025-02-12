@@ -92,7 +92,7 @@ $(eval $(call gb_Library_use_externals,svxcore,\
 	libxml2 \
 ))
 
-ifeq ($(OS),MACOSX)
+ifeq ($(OS),IOS)
 
 $(eval $(call gb_Library_add_cxxflags,svxcore,\
     $(gb_OBJCXXFLAGS) \

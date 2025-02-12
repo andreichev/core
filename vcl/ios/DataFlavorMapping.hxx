@@ -1,4 +1,4 @@
-/* -*- Mode: C++; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4; fill-column: 100 -*- */
+/* -*- Mode: C++; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
 /*
  * This file is part of the LibreOffice project.
  *
@@ -25,7 +25,7 @@
 #include <com/sun/star/lang/XMultiComponentFactory.hpp>
 
 #include <premac.h>
-#import <UIKit/UIKit.h>
+#import <Cocoa/Cocoa.h>
 #include <postmac.h>
 
 #include <memory>
@@ -37,17 +37,17 @@
 class DataProvider
 {
 public:
-    virtual ~DataProvider(){};
+  virtual ~DataProvider() {};
 
-    /* Get the clipboard data in the system format.
+  /* Get the clipboard data in the system format.
      The caller has to retain/release the returned
      CFDataRef on demand.
    */
-    virtual NSData* getSystemData() = 0;
+  virtual NSData* getSystemData() = 0;
 
-    /* Get the clipboard data in OOo format.
+  /* Get the clipboard data in OOo format.
    */
-    virtual css::uno::Any getOOoData() = 0;
+  virtual css::uno::Any getOOoData() = 0;
 };
 
 typedef std::unique_ptr<DataProvider> DataProviderPtr_t;
@@ -63,7 +63,7 @@ public:
 
     /* Map a system data flavor to an OpenOffice data flavor.
      Return an empty string if there is not suitable
-     mapping from a system data flavor to an OpenOffice data
+     mapping from a system data flavor to an LibreOffice data
      flavor.
   */
     css::datatransfer::DataFlavor systemToOpenOfficeFlavor(const NSString* systemDataFlavor) const;
@@ -72,14 +72,15 @@ public:
      If there is no suitable mapping available NULL will
      be returned.
   */
-    NSString* openOfficeToSystemFlavor(const css::datatransfer::DataFlavor& oooDataFlavor,
-                                       bool& rbInternal) const;
+    const NSString* openOfficeToSystemFlavor(const css::datatransfer::DataFlavor& oooDataFlavor,
+                                             bool& rbInternal,
+                                             bool bIsSystemClipboard = false) const;
 
     /* Select the best available image data type
      If there is no suitable mapping available NULL will
      be returned.
   */
-    static NSString* openOfficeImageToSystemFlavor();
+    static NSString* openOfficeImageToSystemFlavor(NSPasteboard* pPasteboard);
 
     /* Get a data provider which is able to provide the data 'rTransferable' offers in a format that can
      be put on to the system clipboard.
@@ -96,19 +97,25 @@ public:
    */
     static DataProviderPtr_t getDataProvider(const NSString* systemFlavor, NSData* systemData);
 
-    /* Translate a sequence of DataFlavors into a NSArray of system types.
+    /* Translate a sequence of DataFlavors into an NSArray of system types.
      Only those DataFlavors for which a suitable mapping to a system
      type exist will be contained in the returned types array.
    */
     NSArray* flavorSequenceToTypesArray(
-        const css::uno::Sequence<css::datatransfer::DataFlavor>& flavors) const;
+        const css::uno::Sequence<css::datatransfer::DataFlavor>& flavors,
+        bool bIsSystemClipboard = false
+    ) const;
 
-    /* Translate a NSArray of system types into a sequence of DataFlavors.
+    /* Translate an NSArray of system types into a sequence of DataFlavors.
      Only those types for which a suitable mapping to a DataFlavor
      exist will be contained in the new DataFlavor Sequence.
   */
     css::uno::Sequence<css::datatransfer::DataFlavor>
     typesArrayToFlavorSequence(NSArray* types) const;
+
+    /* Returns an NSArray containing all pasteboard types supported by OOo
+   */
+    static NSArray* getAllSupportedPboardTypes();
 
 private:
     /* Determines if the provided Mime content type is valid.
@@ -120,5 +127,7 @@ private:
     typedef std::unordered_map<OUString, NSString*> OfficeOnlyTypes;
     mutable OfficeOnlyTypes maOfficeOnlyTypes;
 };
+
+typedef std::shared_ptr<DataFlavorMapper> DataFlavorMapperPtr_t;
 
 /* vim:set shiftwidth=4 softtabstop=4 expandtab: */

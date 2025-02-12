@@ -319,7 +319,6 @@ namespace vclmain
 }
 #endif
 
-
 bool InitVCL()
 {
     if (IsVCLInit())

@@ -21,7 +21,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-#ifdef IOS
+#ifdef MACOSX
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <unicode/udata.h>
@@ -148,7 +148,7 @@
 #include <com/sun/star/view/XSelectionSupplier.hpp>
 
 #include <editeng/flstitem.hxx>
-#ifdef IOS
+#ifdef MACOSX
 #include <sfx2/app.hxx>
 #endif
 #include <sfx2/objsh.hxx>
@@ -178,7 +178,7 @@
 #include <svtools/ctrltool.hxx>
 #include <svtools/langtab.hxx>
 #include <vcl/fontcharmap.hxx>
-#ifdef IOS
+#ifdef MACOSX
 #include <vcl/sysdata.hxx>
 #endif
 #include <vcl/virdev.hxx>
@@ -2624,7 +2624,7 @@ static void doc_destroy(LibreOfficeKitDocument *pThis)
 
     SolarMutexGuard aGuard;
 
-#ifndef IOS
+#ifndef MACOSX
     LOKClipboardFactory::releaseClipboardForView(-1);
 #endif
 
@@ -2772,6 +2772,7 @@ static LibreOfficeKitDocument* lo_documentLoad(LibreOfficeKit* pThis, const char
 
 static LibreOfficeKitDocument* lo_documentLoadWithOptions(LibreOfficeKit* pThis, const char* pURL, const char* pOptions)
 {
+    std::cout << "IRM: DOCUMENT LOAD 1" << std::endl;
     comphelper::ProfileZone aZone("lo_documentLoadWithOptions");
 
     SolarMutexGuard aGuard;
@@ -2925,7 +2926,7 @@ static LibreOfficeKitDocument* lo_documentLoadWithOptions(LibreOfficeKit* pThis,
         uno::Reference<lang::XComponent> xComponent = xComponentLoader->loadComponentFromURL(
                                             aURL, u"_blank"_ustr, 0,
                                             aFilterOptions);
-
+        std::cout << "IRM: DOCUMENT LOAD 2" << std::endl;
         assert(!xComponent.is() || pair.second); // concurrent loading of same URL ought to fail
 
         if (!xComponent.is())
@@ -4076,7 +4077,7 @@ static void doc_iniUnoCommands ()
         return;
     }
 
-#if !defined IOS && !defined ANDROID && !defined __EMSCRIPTEN__
+#if !defined MACOSX && !defined ANDROID && !defined __EMSCRIPTEN__
     uno::Reference<xml::crypto::XSEInitializer> xSEInitializer = xml::crypto::SEInitializer::create(xContext);
     if (!xSEInitializer.is())
     {
@@ -4388,7 +4389,7 @@ static void doc_paintTile(LibreOfficeKitDocument* pThis,
         return;
     }
 
-#if defined(UNX) && !defined(MACOSX) || defined(_WIN32)
+#if defined(UNX) && !defined(IOS) || defined(_WIN32)
 
     // Painting of zoomed or HiDPI spreadsheets is special, we actually draw everything at 100%,
     // and only set cairo's (or CoreGraphic's, in the iOS case) scale factor accordingly, so that
@@ -4397,7 +4398,7 @@ static void doc_paintTile(LibreOfficeKitDocument* pThis,
     // pixels.
     comphelper::ScopeGuard dpiScaleGuard([]() { comphelper::LibreOfficeKit::setDPIScale(1.0); });
 
-#if defined(IOS)
+#if defined(MACOSX)
     double fDPIScale = 1.0;
 
     // Onine uses the LOK_TILEMODE_RGBA by default so flip the normal flags
@@ -4438,18 +4439,18 @@ static void doc_paintTile(LibreOfficeKitDocument* pThis,
     pDoc->paintTile(*pDevice, nCanvasWidth, nCanvasHeight,
                     nTilePosX, nTilePosY, nTileWidth, nTileHeight);
 
-    static bool bDebug = getenv("LOK_DEBUG_TILES") != nullptr;
-    if (bDebug)
-    {
-        // Draw a small red rectangle in the top left corner so that it's easy to see where a new tile begins.
-        tools::Rectangle aRect(0, 0, 5, 5);
-        aRect = pDevice->PixelToLogic(aRect);
-        pDevice->Push(PushFlags::FILLCOLOR | PushFlags::LINECOLOR);
-        pDevice->SetFillColor(COL_LIGHTRED);
-        pDevice->SetLineColor();
-        pDevice->DrawRect(aRect);
-        pDevice->Pop();
-    }
+    // static bool bDebug = getenv("LOK_DEBUG_TILES") != nullptr;
+    // if (bDebug)
+    // {
+    // Draw a small red rectangle in the top left corner so that it's easy to see where a new tile begins.
+    tools::Rectangle aRect(0, 0, 5, 5);
+    aRect = pDevice->PixelToLogic(aRect);
+    pDevice->Push(PushFlags::FILLCOLOR | PushFlags::LINECOLOR);
+    pDevice->SetFillColor(COL_LIGHTRED);
+    pDevice->SetLineColor();
+    pDevice->DrawRect(aRect);
+    pDevice->Pop();
+    // }
 
 #ifdef _WIN32
     // pBuffer was not used there
@@ -4483,6 +4484,7 @@ static void doc_paintTile(LibreOfficeKitDocument* pThis,
 #endif
 
 #else
+    std::cout << "ERROR, NO RENDERING PERFORMED" << std::endl;
     (void) pBuffer;
 #endif
 }
@@ -4584,6 +4586,7 @@ static void doc_paintPartTile(LibreOfficeKitDocument* pThis,
 {
     comphelper::ProfileZone aZone("doc_paintPartTile");
 
+    std::cout << "PAINT PART TILE!" << std::endl;
     SolarMutexGuard aGuard;
     SetLastExceptionMsg();
 
@@ -4686,7 +4689,7 @@ static void doc_paintPartTile(LibreOfficeKitDocument* pThis,
 static int doc_getTileMode(SAL_UNUSED_PARAMETER LibreOfficeKitDocument* /*pThis*/)
 {
     SetLastExceptionMsg();
-#if ENABLE_CAIRO_RGBA || defined IOS
+#if ENABLE_CAIRO_RGBA || defined MACOSX
     return LOK_TILEMODE_RGBA;
 #else
     return LOK_TILEMODE_BGRA;
@@ -7058,7 +7061,7 @@ static void doc_destroyView(SAL_UNUSED_PARAMETER LibreOfficeKitDocument* pThis, 
     SolarMutexGuard aGuard;
     SetLastExceptionMsg();
 
-#ifndef IOS
+#ifndef MACOSX
     LOKClipboardFactory::releaseClipboardForView(nId);
 #endif
 
@@ -7265,7 +7268,7 @@ static void doc_paintWindowForView(LibreOfficeKitDocument* pThis, unsigned nLOKW
     comphelper::ScopeGuard dpiScaleGuard([]() { comphelper::LibreOfficeKit::setDPIScale(1.0); });
     comphelper::LibreOfficeKit::setDPIScale(fDPIScale);
 
-#if defined(IOS)
+#if defined(MACOSX)
     // Onine uses the LOK_TILEMODE_RGBA by default so flip the normal flags
     // to kCGImageAlphaNoneSkipLast | kCGImageByteOrder32Big
     CGContextRef cgc = CGBitmapContextCreate(pBuffer, nWidth, nHeight, 8, nWidth*4, CGColorSpaceCreateDeviceRGB(), kCGImageAlphaNoneSkipLast | kCGImageByteOrder32Big);
@@ -7773,11 +7776,11 @@ static void aBasicErrorFunc(const OUString& rError, const OUString& rAction)
 
 static bool initialize_uno(const OUString& aAppProgramURL)
 {
-#ifdef IOS
+#ifdef MACOSX
     // For iOS we already hardcode the inifile as "rc" in the .app directory.
-    rtl::Bootstrap::setIniFilename(aAppProgramURL + "/" SAL_CONFIGFILE("fundamental"));
-    xContext = cppu::defaultBootstrap_InitialComponentContext(aAppProgramURL + "/rc");
-#elif defined MACOSX
+    rtl::Bootstrap::setIniFilename(aAppProgramURL + "/../Resources/" SAL_CONFIGFILE("fundamental"));
+    xContext = cppu::defaultBootstrap_InitialComponentContext(aAppProgramURL + "/../Resources/rc");
+#elif defined IOS
     rtl::Bootstrap::setIniFilename(aAppProgramURL + "/../Resources/" SAL_CONFIGFILE("soffice"));
     xContext = cppu::defaultBootstrap_InitialComponentContext();
 #else
@@ -7834,10 +7837,11 @@ static void lo_runLoop(LibreOfficeKit* /*pThis*/,
                        LibreOfficeKitWakeCallback pWakeCallback,
                        void* pData)
 {
-#if defined(IOS) || defined(ANDROID) || defined(__EMSCRIPTEN__)
+    std::cout << "RUN LOOP 1" << std::endl;
+#if defined(MACOSX) || defined(ANDROID) || defined(__EMSCRIPTEN__)
     Application::GetSolarMutex().acquire();
 #endif
-
+    std::cout << "RUN LOOP 2" << std::endl;
     {
         SolarMutexGuard aGuard;
 
@@ -7845,7 +7849,7 @@ static void lo_runLoop(LibreOfficeKit* /*pThis*/,
         Application::UpdateMainThread();
         soffice_main();
     }
-#if defined(IOS) || defined(ANDROID) || defined(__EMSCRIPTEN__)
+#if defined(MACOSX) || defined(ANDROID) || defined(__EMSCRIPTEN__)
     vcl::lok::unregisterPollCallbacks();
     Application::ReleaseSolarMutex();
 #endif
@@ -8312,7 +8316,7 @@ static int lo_initialize(LibreOfficeKit* pThis, const char* pAppPath, const char
         osl::FileBase::getSystemPathFromFileURL( aAppURL, aAppPath );
 #endif
 
-#ifdef IOS
+#ifdef MACOSX
         // The above gives something like
         // "/private/var/containers/Bundle/Application/953AA851-CC15-4C60-A2CB-C2C6F24E6F71/Foo.app/Foo",
         // and we want to drop the final component (the binary name).
@@ -8369,12 +8373,13 @@ static int lo_initialize(LibreOfficeKit* pThis, const char* pAppPath, const char
         }
     }
 
-#ifdef IOS
+#ifdef MACOSX
     // A LibreOffice-using iOS app should have the ICU data file in the app bundle. Initialize ICU
     // to use that.
+    NSLog(@"IRM COLLABORA INIT");
     NSString *bundlePath = [[NSBundle mainBundle] bundlePath];
 
-    int fd = open([[bundlePath stringByAppendingPathComponent:@"ICU.dat"] UTF8String], O_RDONLY);
+    int fd = open([[bundlePath stringByAppendingPathComponent:@"/Contents/Resources/ICU.dat"] UTF8String], O_RDONLY);
     if (fd == -1)
         NSLog(@"Could not open ICU data file %s", [[bundlePath stringByAppendingPathComponent:@"ICU.dat"] UTF8String]);
     else
@@ -8425,7 +8430,7 @@ static int lo_initialize(LibreOfficeKit* pThis, const char* pAppPath, const char
             // CommandLineArgs):
             desktop::Desktop::GetCommandLineArgs().setHeadless();
 
-#ifdef IOS
+#ifdef MACOSX
             if (InitVCL() && [NSThread isMainThread])
             {
                 static bool bFirstTime = true;
@@ -8552,7 +8557,7 @@ static int lo_initialize(LibreOfficeKit* pThis, const char* pAppPath, const char
     }
 
 // Turn off quick editing on iOS, Android and Emscripten
-#if defined IOS || defined ANDROID || defined __EMSCRIPTEN__
+#if defined MACOSX || defined ANDROID || defined __EMSCRIPTEN__
     if (officecfg::Office::Impress::Misc::TextObject::QuickEditing::get())
     {
         std::shared_ptr<comphelper::ConfigurationChanges> batch(comphelper::ConfigurationChanges::create());

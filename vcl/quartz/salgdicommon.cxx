@@ -38,13 +38,13 @@
 #include <quartz/salgdi.h>
 #endif
 #include <quartz/utils.h>
-#ifdef IOS
+#ifdef MACOSX
 #include <svdata.hxx>
 #endif
 
 using namespace vcl;
 
-#ifndef IOS
+#ifndef MACOSX
 
 void AquaSalGraphics::copyResolution( AquaSalGraphics& rGraphics )
 {
@@ -66,7 +66,7 @@ SystemGraphicsData AquaSalGraphics::GetGraphicsData() const
     return aRes;
 }
 
-#ifndef IOS
+#ifndef MACOSX
 
 void AquaSalGraphics::initResolution(NSWindow* nsWindow)
 {
@@ -200,7 +200,7 @@ void AquaSharedAttributes::setState()
     }
 }
 
-#ifndef IOS
+#ifndef MACOSX
 
 void AquaSalGraphics::updateResolution()
 {

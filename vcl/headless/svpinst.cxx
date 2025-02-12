@@ -37,7 +37,7 @@
 #include <headless/svpframe.hxx>
 #include <headless/svpdummies.hxx>
 #include <headless/svpvd.hxx>
-#ifdef IOS
+#ifdef MACOSX
 #  include <quartz/salbmp.h>
 #  include <quartz/salgdi.h>
 #  include <quartz/salvd.h>
@@ -74,7 +74,7 @@ do { \
 #define DBG_TESTSVPYIELDMUTEX() ((void)0)
 #endif
 
-#if !defined(ANDROID) && !defined(IOS) && !defined(EMSCRIPTEN)
+#if !defined(ANDROID) && !defined(MACOSX) && !defined(EMSCRIPTEN)
 
 static void atfork_child()
 {
@@ -96,7 +96,7 @@ SvpSalInstance::SvpSalInstance( std::unique_ptr<SalYieldMutex> pMutex )
     m_MainThread = osl::Thread::getCurrentIdentifier();
     if( s_pDefaultInstance == nullptr )
         s_pDefaultInstance = this;
-#if !defined(ANDROID) && !defined(IOS) && !defined(EMSCRIPTEN)
+#if !defined(ANDROID) && !defined(MACOSX) && !defined(EMSCRIPTEN)
     pthread_atfork(nullptr, nullptr, atfork_child);
 #endif
 }
@@ -191,7 +191,7 @@ void SvpSalInstance::DestroyObject( SalObject* pObject )
     delete pObject;
 }
 
-#ifndef IOS
+#ifndef MACOSX
 
 std::unique_ptr<SalVirtualDevice> SvpSalInstance::CreateVirtualDevice(SalGraphics& rGraphics,
                                                        tools::Long &nDX, tools::Long &nDY,
@@ -253,7 +253,7 @@ SalSystem* SvpSalInstance::CreateSalSystem()
 
 std::shared_ptr<SalBitmap> SvpSalInstance::CreateSalBitmap()
 {
-#ifdef IOS
+#ifdef MACOSX
     return std::make_shared<QuartzSalBitmap>();
 #else
     return std::make_shared<SvpSalBitmap>();

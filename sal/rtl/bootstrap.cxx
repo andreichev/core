@@ -49,7 +49,7 @@
 #include <osl/detail/emscripten-bootstrap.h>
 #endif
 
-#ifdef IOS
+#ifdef MACOSX
 #include <premac.h>
 #import <Foundation/Foundation.h>
 #include <postmac.h>
@@ -212,12 +212,12 @@ static OUString & getIniFileName_Impl()
     static OUString aStaticName = []() {
         OUString fileName;
 
-#if defined IOS
+#if defined MACOSX
         // On iOS hardcode the inifile as "rc" in the .app
         // directory. Apps are self-contained anyway, there is no
         // possibility to have several "applications" in the same
         // installation location with different inifiles.
-        const char *inifile = [[@"vnd.sun.star.pathname:" stringByAppendingString: [[[NSBundle mainBundle] bundlePath] stringByAppendingPathComponent: @"rc"]] UTF8String];
+        const char *inifile = [[@"vnd.sun.star.pathname:" stringByAppendingString: [[[NSBundle mainBundle] bundlePath] stringByAppendingPathComponent: @"Contents/Resources/rc"]] UTF8String];
         fileName = OUString(inifile, strlen(inifile), RTL_TEXTENCODING_UTF8);
         resolvePathnameUrl(&fileName);
 #elif defined ANDROID
@@ -256,7 +256,7 @@ static OUString & getIniFileName_Impl()
             // append config file suffix
             fileName += SAL_CONFIGFILE("");
 
-#ifdef MACOSX
+#ifdef IOS
             // We keep only executables in the MacOS folder, and all
             // rc files in LIBO_ETC_FOLDER (typically "Resources").
             sal_Int32 off = fileName.lastIndexOf( "/MacOS/" );
@@ -465,12 +465,12 @@ bool Bootstrap_Impl::getValue(
     }
 #endif
 
-#ifdef IOS
+#ifdef MACOSX
     if (key == "APP_DATA_DIR")
     {
-        const char *app_data_dir = [[[[NSBundle mainBundle] bundlePath] stringByAddingPercentEncodingWithAllowedCharacters: [NSCharacterSet URLPathAllowedCharacterSet]] UTF8String];
+        NSString * app_data_dir = [[[NSBundle mainBundle] bundlePath] stringByAppendingPathComponent: @"Contents/Resources"];
         rtl_uString_assign(
-            value, OUString(app_data_dir, strlen(app_data_dir), RTL_TEXTENCODING_UTF8).pData);
+            value, OUString([app_data_dir cStringUsingEncoding: NSUTF8StringEncoding], app_data_dir.length, RTL_TEXTENCODING_UTF8).pData);
         return true;
     }
 #endif

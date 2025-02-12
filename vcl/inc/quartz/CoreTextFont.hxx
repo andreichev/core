@@ -22,7 +22,7 @@
 #include <sal/config.h>
 
 #include <premac.h>
-#ifdef MACOSX
+#ifdef IOS
 #include <ApplicationServices/ApplicationServices.h>
 #include <osx/osxvcltypes.h>
 #include <osx/salframe.h>
@@ -32,7 +32,7 @@
 #endif
 #include <postmac.h>
 
-#ifdef IOS
+#ifdef MACOSX
 // iOS defines a different Point class so include salgeom.hxx after postmac.h
 // so that it will use the Point class in tools/gen.hxx
 #include "salgeom.hxx"

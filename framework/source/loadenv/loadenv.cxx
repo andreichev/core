@@ -91,6 +91,7 @@
 #include <comphelper/profilezone.hxx>
 #include <classes/taskcreator.hxx>
 #include <tools/fileutil.hxx>
+#include <iostream>
 
 constexpr OUString PROP_TYPES = u"Types"_ustr;
 constexpr OUString PROP_NAME = u"Name"_ustr;
@@ -160,11 +161,16 @@ css::uno::Reference< css::lang::XComponent > LoadEnv::loadComponentFromURL(const
     {
         LoadEnv aEnv(xContext);
 
-        LoadEnvFeatures loadEnvFeatures = LoadEnvFeatures::WorkWithUI;
+        LoadEnvFeatures loadEnvFeatures = LoadEnvFeatures::NONE;
         // tdf#118238 Only disable UI interaction when loading as hidden
         if (comphelper::NamedValueCollection::get(lArgs, u"Hidden") == uno::Any(true) || Application::IsHeadlessModeEnabled())
             loadEnvFeatures = LoadEnvFeatures::NONE;
 
+        std::cout << "DANGER ZONE!" << std::endl;
+        std::cout << sURL << std::endl;
+        std::cout << sTarget << std::endl;
+        std::cout << nSearchFlags << std::endl;
+        std::cout << lArgs.size() << std::endl;
         aEnv.startLoading(sURL,
                                lArgs,
                                css::uno::Reference< css::frame::XFrame >(xLoader, css::uno::UNO_QUERY),
@@ -305,6 +311,7 @@ void LoadEnv::startLoading(const OUString& sURL, const uno::Sequence<beans::Prop
 
     initializeUIDefaults(m_xContext, m_lMediaDescriptor, bUIMode, &m_pQuietInteraction);
 
+    std::cout << "START LOADING!" << std::endl;
     start();
 }
 
@@ -408,6 +415,7 @@ void LoadEnv::start()
         bStarted = impl_handleContent();
     }
 
+    std::cout << "ACTUAL START!" << std::endl;
     if (!bStarted)
         bStarted = impl_loadContent();
 
@@ -1173,6 +1181,7 @@ bool LoadEnv::impl_loadContent()
             // controller.
             xTargetFrameProps->setPropertyValue("URL", uno::Any(sURL));
         }
+        std::cout << "LOAD CONTEXT!" << std::endl;
         bool bResult = xSyncLoader->load(lDescriptor, xTargetFrame);
         // react for the result here, so the outside waiting
         // code can ask for it later.

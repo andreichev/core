@@ -34,7 +34,7 @@
 
 #include <sys/time.h>
 
-#ifdef IOS
+#ifdef MACOSX
 #define SvpSalInstance AquaSalInstance
 #endif
 

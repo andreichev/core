@@ -26,7 +26,7 @@
 
 #include <vector>
 
-#ifdef IOS
+#ifdef MACOSX
 #include <quartz/salgdi.h>
 #define SvpSalInstance AquaSalInstance
 #define SvpSalGraphics AquaSalGraphics
@@ -42,7 +42,7 @@ class SvpSalFrame : public SalFrame
     std::vector< SvpSalFrame* >         m_aChildren;     // Vector of child frames
     SalFrameStyleFlags                  m_nStyle;
     bool                                m_bVisible;
-#ifndef IOS
+#ifndef MACOSX
     cairo_surface_t*                    m_pSurface;
 #endif
     tools::Long                                m_nMinWidth;

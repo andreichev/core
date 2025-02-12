@@ -17,53 +17,18 @@
  *   the License at http://www.apache.org/licenses/LICENSE-2.0 .
  */
 
-#ifdef MACOSX
-#include <ios/iosinst.hxx>
-#endif
+#pragma once
 
-#include <unx/gendata.hxx>
+#include <com/sun/star/uno/Sequence.hxx>
 
-#include <unx/fontmanager.hxx>
+#include <premac.h>
+#include <Cocoa/Cocoa.h>
+#include <postmac.h>
 
-#ifndef MACOSX
+bool ImageToPNG(css::uno::Sequence<sal_Int8> const& rImgData,
+                css::uno::Sequence<sal_Int8>& rPngData);
 
-#include <unx/glyphcache.hxx>
-#include <printerinfomanager.hxx>
-
-SalData::SalData() { SetSalData(this); }
-
-SalData::~SalData() {}
-
-#endif
-
-GenericUnixSalData::GenericUnixSalData()
-    : m_pDisplay(nullptr)
-{
-}
-
-GenericUnixSalData::~GenericUnixSalData()
-{
-#ifndef MACOSX
-    // at least for InitPrintFontManager the sequence is important
-    m_pPrintFontManager.reset();
-    m_pFreetypeManager.reset();
-    m_pPrinterInfoManager.reset();
-#endif
-}
-
-void GenericUnixSalData::Dispose() {}
-
-#ifndef MACOSX
-void GenericUnixSalData::InitFreetypeManager() { m_pFreetypeManager.reset(new FreetypeManager); }
-#endif
-
-void GenericUnixSalData::InitPrintFontManager()
-{
-#ifndef MACOSX
-    GetFreetypeManager();
-    m_pPrintFontManager.reset(new psp::PrintFontManager);
-    m_pPrintFontManager->initialize();
-#endif
-}
+bool PNGToImage(css::uno::Sequence<sal_Int8> const& rPngData,
+                css::uno::Sequence<sal_Int8>& rImgData, NSBitmapImageFileType eOutFormat);
 
 /* vim:set shiftwidth=4 softtabstop=4 expandtab: */

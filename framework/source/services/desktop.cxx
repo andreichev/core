@@ -299,7 +299,7 @@ sal_Bool SAL_CALL Desktop::terminate()
     else
         m_bIsShutdown = true;
 
-#ifndef IOS // or ANDROID?
+#ifndef MACOSX // or ANDROID?
     aGuard.clear();
     // In the iOS app, posting the ImplQuitMsg user event will be too late, it will not be handled during the
     // lifetime of the current document, but handled for the next document opened, which thus will break horribly.

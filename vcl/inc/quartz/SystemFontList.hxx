@@ -22,7 +22,7 @@
 #include <sal/config.h>
 
 #include <premac.h>
-#ifdef MACOSX
+#ifdef IOS
 #include <ApplicationServices/ApplicationServices.h>
 #include <osx/osxvcltypes.h>
 #include <osx/salframe.h>
@@ -33,7 +33,7 @@
 #include <postmac.h>
 
 #include <font/PhysicalFontFace.hxx>
-#ifdef IOS
+#ifdef MACOSX
 #include <font/PhysicalFontCollection.hxx>
 #endif
 

@@ -70,8 +70,8 @@
 #include <premac.h>
 #include <Foundation/Foundation.h>
 #include <ApplicationServices/ApplicationServices.h>
-#import "apple_remote/RemoteMainController.h"
-#include <apple_remote/RemoteControl.h>
+// #import "apple_remote/RemoteMainController.h"
+// #include <apple_remote/RemoteControl.h>
 #include <postmac.h>
 
 #if HAVE_FEATURE_SKIA
@@ -191,7 +191,7 @@ void AquaSalInstance::AfterAppInit()
                                           selector: @selector(scrollbarSettingsChanged:)
                                           name: @"AppleNoRedisplayAppearancePreferenceChanged"
                                           object: nil ];
-#if !HAVE_FEATURE_MACOSX_SANDBOX
+#if 0
     // Initialize Apple Remote
     GetSalData()->mpAppleRemoteMainController = [[AppleRemoteMainController alloc] init];
 
@@ -458,7 +458,7 @@ void AquaSalInstance::handleAppDefinedEvent( NSEvent* pEvent )
             pInst->mbTimerProcessed = pTimer->handleDispatchTimerEvent( pEvent );
         break;
     }
-#if !HAVE_FEATURE_MACOSX_SANDBOX
+#if 0
     case AppleRemoteControlEvent: // Defined in <apple_remote/RemoteMainController.h>
     {
         MediaCommand nCommand;

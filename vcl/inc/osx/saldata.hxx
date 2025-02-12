@@ -44,7 +44,7 @@
 #include <cstdio>
 #include <cstdarg>
 
-#include <apple_remote/RemoteMainController.h>
+// #include <apple_remote/RemoteMainController.h>
 
 class AquaSalFrame;
 class AquaSalInstance;
@@ -82,7 +82,7 @@ public:
     static oslThreadKey                           s_aAutoReleaseKey;
 
     bool                                          mbIsScrollbarDoubleMax;   // TODO: support DoubleMin and DoubleBoth too
-#if !HAVE_FEATURE_MACOSX_SANDBOX
+#if 0
     AppleRemoteMainController*                    mpAppleRemoteMainController;
 #endif
     NSObject*                                     mpDockIconClickHandler;

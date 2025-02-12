@@ -34,7 +34,7 @@
   #include <netinet/in.h>
 #endif
 
-#ifdef MACOSX
+#ifdef IOS
   #include <osl/conditn.hxx>
   #include <premac.h>
   #import <CoreFoundation/CoreFoundation.h>
@@ -73,7 +73,7 @@ DiscoveryService::~DiscoveryService()
 void DiscoveryService::setupSockets()
 {
 
-#ifdef MACOSX
+#ifdef IOS
     // Bonjour for OSX
     zService = new OSXNetworkService();
     zService->setup();

@@ -129,11 +129,13 @@ $(eval $(call gb_Library_add_exception_objects,sal,\
 	sal/textenc/unichars \
 ))
 
-ifeq ($(OS),iOS)
 $(eval $(call gb_Library_add_cxxflags,sal,\
     $(gb_OBJCXXFLAGS) \
 ))
-endif
+
+$(eval $(call gb_Library_use_system_darwin_frameworks,sal,\
+	Foundation \
+))
 
 ifeq (,$(call gb_CondLibSalTextenc,$(true)))
 $(eval $(call gb_Library_add_exception_objects,sal,\

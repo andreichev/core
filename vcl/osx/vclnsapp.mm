@@ -376,7 +376,7 @@
 
 // for Apple Remote implementation
 
-#if !HAVE_FEATURE_MACOSX_SANDBOX
+#if 0
 - (void)applicationWillBecomeActive:(NSNotification *)pNotification
 {
     (void)pNotification;

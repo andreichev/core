@@ -34,7 +34,7 @@
 #include <quartz/salgdi.h>
 #include <quartz/SystemFontList.hxx>
 
-#import "apple_remote/RemoteMainController.h"
+// #import "apple_remote/RemoteMainController.h"
 
 oslThreadKey SalData::s_aAutoReleaseKey = nullptr;
 
@@ -56,7 +56,7 @@ SalData::SalData()
     mxGraySpace( CGColorSpaceCreateWithName(kCGColorSpaceGenericGrayGamma2_2) ),
     maCursors(),
     mbIsScrollbarDoubleMax( false ),
-#if !HAVE_FEATURE_MACOSX_SANDBOX
+#if 0
     mpAppleRemoteMainController( nullptr ),
 #endif
     mpDockIconClickHandler( nil ),
@@ -91,7 +91,7 @@ SalData::~SalData()
         osl_destroyThreadKey( s_aAutoReleaseKey );
         s_aAutoReleaseKey = nullptr;
     }
-#if !HAVE_FEATURE_MACOSX_SANDBOX
+#if 0
     if ( mpAppleRemoteMainController )
         [mpAppleRemoteMainController release];
 #endif

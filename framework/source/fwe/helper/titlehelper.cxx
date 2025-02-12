@@ -489,7 +489,7 @@ void TitleHelper::impl_updateTitleForFrame (const css::uno::Reference< css::fram
     OUStringBuffer sTitle (256);
 
     impl_appendComponentTitle   (sTitle, xComponent);
-#ifndef MACOSX
+#ifndef IOS
     if (!utl::ConfigManager::IsFuzzing())
     {
         // fdo#70376: We want the window title to contain just the

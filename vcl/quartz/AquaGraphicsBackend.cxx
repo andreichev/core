@@ -36,11 +36,11 @@
 
 #include <fontsubset.hxx>
 #include <quartz/salbmp.h>
-#ifdef MACOSX
+#ifdef IOS
 #include <quartz/salgdi.h>
 #endif
 #include <quartz/utils.h>
-#ifdef IOS
+#ifdef MACOSX
 #include <ios/iosinst.hxx>
 #endif
 
@@ -251,7 +251,7 @@ tools::Long AquaGraphicsBackend::GetGraphicsWidth() const
     tools::Long width = 0;
     if (mrShared.maContextHolder.isSet()
         && (
-#ifndef IOS
+#ifndef MACOSX
                mrShared.mbWindow ||
 #endif
                mrShared.mbVirDev))
@@ -259,7 +259,7 @@ tools::Long AquaGraphicsBackend::GetGraphicsWidth() const
         width = mrShared.mnWidth;
     }
 
-#ifndef IOS
+#ifndef MACOSX
     if (width == 0)
     {
         if (mrShared.mbWindow && mrShared.mpFrame)
@@ -668,7 +668,7 @@ void AquaGraphicsBackend::drawPolyPolygon(const basegfx::B2DHomMatrix& rObjectTo
                                           const basegfx::B2DPolyPolygon& rPolyPolygon,
                                           double fTransparency)
 {
-#ifdef IOS
+#ifdef MACOSX
     if (!mrShared.maContextHolder.isSet())
         return;
 #endif
@@ -751,7 +751,7 @@ bool AquaGraphicsBackend::drawPolyLine(const basegfx::B2DHomMatrix& rObjectToDev
         return true;
     }
 
-#ifdef IOS
+#ifdef MACOSX
     if (!mrShared.checkContext())
         return false;
 #endif
@@ -1015,7 +1015,7 @@ Color AquaGraphicsBackend::getPixel(tools::Long nX, tools::Long nY)
 
 void AquaSalGraphics::GetResolution(sal_Int32& rDPIX, sal_Int32& rDPIY)
 {
-#ifndef IOS
+#ifndef MACOSX
     if (!mnRealDPIY)
     {
         initResolution((maShared.mbWindow && maShared.mpFrame) ? maShared.mpFrame->getNSWindow()
@@ -1135,7 +1135,7 @@ void AquaGraphicsBackend::invert(sal_uInt32 nPoints, const Point* pPtAry, SalInv
     }
 }
 
-#ifndef IOS
+#ifndef MACOSX
 bool AquaGraphicsBackend::drawEPS(tools::Long nX, tools::Long nY, tools::Long nWidth,
                                   tools::Long nHeight, void* pEpsData, sal_uInt32 nByteCount)
 {

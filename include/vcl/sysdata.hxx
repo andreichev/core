@@ -186,12 +186,12 @@ struct SystemGraphicsData
 struct SystemWindowData
 {
 #if defined(_WIN32)                  // meaningless on Windows
-#elif defined( MACOSX )
+#elif defined( IOS )
     bool            bOpenGL;        // create an OpenGL providing NSView
     bool            bLegacy;        // create a 2.1 legacy context, only valid if bOpenGL == true
 #elif defined( ANDROID )
     // Nothing
-#elif defined( IOS )
+#elif defined( MACOSX )
     // Nothing
 #elif defined( UNX )
     void*           pVisual;        // the visual to be used

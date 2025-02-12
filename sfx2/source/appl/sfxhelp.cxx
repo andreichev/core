@@ -24,7 +24,7 @@
 #include <algorithm>
 #include <cassert>
 #include <cstddef>
-#ifdef MACOSX
+#ifdef IOS
 #include <premac.h>
 #include <Foundation/NSString.h>
 #include <CoreFoundation/CFURL.h>
@@ -742,7 +742,7 @@ static bool impl_showOnlineHelp(const OUString& rURL, weld::Widget* pDialogParen
 
     try
     {
-#ifdef MACOSX
+#ifdef IOS
         LSOpenCFURLRef(CFURLCreateWithString(kCFAllocatorDefault,
                            CFStringCreateWithCString(kCFAllocatorDefault,
                                aHelpLink.toUtf8().getStr(),
@@ -975,7 +975,7 @@ static bool impl_showOfflineHelp(const OUString& rURL, weld::Widget* pDialogPare
     aTempFile.CloseStream();
     try
     {
-#ifdef MACOSX
+#ifdef IOS
         LSOpenCFURLRef(CFURLCreateWithString(kCFAllocatorDefault,
                            CFStringCreateWithCString(kCFAllocatorDefault,
                                aTempFile.GetURL().toUtf8().getStr(),
@@ -1111,7 +1111,7 @@ bool SfxHelp::Start_Impl(const OUString& rURL, const vcl::Window* pWindow)
         impl_showOnlineHelp(aHelpURL, pWeldWindow);
         return true;
     }
-#ifdef MACOSX
+#ifdef IOS
     if (@available(macOS 10.14, *)) {
         // Workaround: Safari sandboxing prevents it from accessing files in the LibreOffice.app folder
         // force online-help instead if Safari is default browser.
@@ -1280,7 +1280,7 @@ bool SfxHelp::Start_Impl(const OUString& rURL, weld::Widget* pWidget, const OUSt
         impl_showOnlineHelp(aHelpURL, pWidget);
         return true;
     }
-#ifdef MACOSX
+#ifdef IOS
     if (@available(macOS 10.14, *)) {
         // Workaround: Safari sandboxing prevents it from accessing files in the LibreOffice.app folder
         // force online-help instead if Safari is default browser.
