@@ -1035,6 +1035,14 @@ ios*) # iOS
 
     # Apple's Clang uses "arm64"
     host_cpu_for_clang=arm64
+
+    # -undefined error is the default
+    LINKFLAGSNOUNDEFS=""
+    case "$host_cpu" in
+    aarch64|arm64)
+        # Apple's Clang uses "arm64"
+        host_cpu_for_clang=arm64
+    esac
 ;;
 
 freebsd*)
@@ -3273,6 +3281,12 @@ else
 fi
 AC_SUBST(DISABLE_DYNLOADING)
 
+echo "********************************************************************"
+echo "*"
+echo "*               DISABLE_DYNLOADING = $DISABLE_DYNLOADING            "
+echo "*"
+echo "********************************************************************"
+
 ENABLE_CUSTOMTARGET_COMPONENTS=
 if test "$enable_customtarget_components" = yes -a "$DISABLE_DYNLOADING" = TRUE; then
     ENABLE_CUSTOMTARGET_COMPONENTS=TRUE
@@ -3783,8 +3797,10 @@ if test $_os = iOS; then
         platformlc=iphonesimulator
         versionmin=-mios-simulator-version-min=14.5
     else
-        platformlc=iphoneos
-        versionmin=-miphoneos-version-min=14.5
+        platformlc=macosx
+        versionmin=-mmacosx-version-min=14.0
+        # platformlc=iphoneos
+        # versionmin=-miphoneos-version-min=14.5
     fi
 
     sysroot=`xcrun --sdk $platformlc --show-sdk-path`
@@ -3800,13 +3816,15 @@ if test $_os = iOS; then
     AC_MSG_CHECKING([what C compiler to use])
     CC="`xcrun -find clang`"
     CC_BASE=`first_arg_basename "$CC"`
-    CC+=" -arch $host_cpu_for_clang -isysroot $sysroot $versionmin"
+    CC+=" -target arm64-apple-macos -isysroot $sysroot $versionmin"
+    # CC+=" -arch $host_cpu_for_clang -isysroot $sysroot $versionmin"
     AC_MSG_RESULT([$CC])
 
     AC_MSG_CHECKING([what C++ compiler to use])
     CXX="`xcrun -find clang++`"
     CXX_BASE=`first_arg_basename "$CXX"`
-    CXX+=" -arch $host_cpu_for_clang $stdlib -isysroot $sysroot $versionmin"
+    CXX+=" -target arm64-apple-macos $stdlib -isysroot $sysroot $versionmin"
+    # CXX+=" -arch $host_cpu_for_clang $stdlib -isysroot $sysroot $versionmin"
     AC_MSG_RESULT([$CXX])
 
     INSTALL_NAME_TOOL=`xcrun -find install_name_tool`

@@ -20,6 +20,9 @@
 #ifndef INCLUDED_LINGUCOMPONENT_SOURCE_SPELLCHECK_MACOSXSPELL_MACSPELLIMP_HXX
 #define INCLUDED_LINGUCOMPONENT_SOURCE_SPELLCHECK_MACOSXSPELL_MACSPELLIMP_HXX
 
+#undef IOS
+#define MACOSX
+
 #include <comphelper/interfacecontainer3.hxx>
 #include <cppuhelper/implbase.hxx>
 
@@ -117,6 +120,9 @@ public:
     virtual sal_Bool SAL_CALL supportsService( const OUString& rServiceName ) override;
     virtual Sequence< OUString > SAL_CALL getSupportedServiceNames() override;
 };
+
+#undef MACOSX
+#define IOS
 
 #endif
 

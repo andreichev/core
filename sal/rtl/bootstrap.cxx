@@ -217,7 +217,7 @@ static OUString & getIniFileName_Impl()
         // directory. Apps are self-contained anyway, there is no
         // possibility to have several "applications" in the same
         // installation location with different inifiles.
-        const char *inifile = [[@"vnd.sun.star.pathname:" stringByAppendingString: [[[NSBundle mainBundle] bundlePath] stringByAppendingPathComponent: @"rc"]] UTF8String];
+        const char *inifile = [[@"vnd.sun.star.pathname:" stringByAppendingString: [[[NSBundle mainBundle] bundlePath] stringByAppendingPathComponent: @"Contents/Resources/rc"]] UTF8String];
         fileName = OUString(inifile, strlen(inifile), RTL_TEXTENCODING_UTF8);
         resolvePathnameUrl(&fileName);
 #elif defined ANDROID
@@ -468,9 +468,10 @@ bool Bootstrap_Impl::getValue(
 #ifdef IOS
     if (key == "APP_DATA_DIR")
     {
-        const char *app_data_dir = [[[[NSBundle mainBundle] bundlePath] stringByAddingPercentEncodingWithAllowedCharacters: [NSCharacterSet URLPathAllowedCharacterSet]] UTF8String];
+        // const char *app_data_dir = [[[[NSBundle mainBundle] bundlePath] stringByAddingPercentEncodingWithAllowedCharacters: [NSCharacterSet URLPathAllowedCharacterSet]] UTF8String];
+        NSString * app_data_dir = [[[NSBundle mainBundle] bundlePath] stringByAppendingPathComponent: @"Contents/Resources"];
         rtl_uString_assign(
-            value, OUString(app_data_dir, strlen(app_data_dir), RTL_TEXTENCODING_UTF8).pData);
+            value, OUString([app_data_dir cStringUsingEncoding: NSUTF8StringEncoding], app_data_dir.length, RTL_TEXTENCODING_UTF8).pData);
         return true;
     }
 #endif

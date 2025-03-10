@@ -1,4 +1,4 @@
-/* -*- Mode: C++; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4; fill-column: 100 -*- */
+/* -*- Mode: C++; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
 /*
  * This file is part of the LibreOffice project.
  *
@@ -27,7 +27,7 @@
 #include "DataFlavorMapping.hxx"
 
 #include <premac.h>
-#import <UIKit/UIKit.h>
+#import <Cocoa/Cocoa.h>
 #include <postmac.h>
 
 #include <memory>
@@ -36,9 +36,9 @@
 class iOSTransferable : public ::cppu::WeakImplHelper<css::datatransfer::XTransferable>
 {
 public:
-    explicit iOSTransferable(
-        css::uno::Reference<css::datatransfer::XMimeContentTypeFactory> const& rXMimeCntFactory,
-        std::shared_ptr<DataFlavorMapper> pDataFlavorMapper);
+    explicit iOSTransferable(css::uno::Reference< css::datatransfer::XMimeContentTypeFactory> const & rXMimeCntFactory,
+                             DataFlavorMapperPtr_t pDataFlavorMapper,
+                             NSPasteboard* pasteboard);
 
     virtual ~iOSTransferable() override;
     iOSTransferable(const iOSTransferable&) = delete;
@@ -46,24 +46,26 @@ public:
 
     // XTransferable
 
-    virtual css::uno::Any SAL_CALL
-    getTransferData(const css::datatransfer::DataFlavor& aFlavor) override;
+    virtual css::uno::Any SAL_CALL getTransferData( const css::datatransfer::DataFlavor& aFlavor ) override;
 
-    css::uno::Sequence<css::datatransfer::DataFlavor> SAL_CALL getTransferDataFlavors() override;
+    virtual css::uno::Sequence< css::datatransfer::DataFlavor > SAL_CALL getTransferDataFlavors(  ) override;
 
-    sal_Bool SAL_CALL isDataFlavorSupported(const css::datatransfer::DataFlavor& aFlavor) override;
+    virtual sal_Bool SAL_CALL isDataFlavorSupported( const css::datatransfer::DataFlavor& aFlavor ) override;
 
     // Helper functions not part of the XTransferable interface
 
     void initClipboardItemList();
 
-    bool compareDataFlavors(const css::datatransfer::DataFlavor& lhs,
-                            const css::datatransfer::DataFlavor& rhs);
+    //css::uno::Any getClipboardItemData(ClipboardItemPtr_t clipboardItem);
+
+    bool compareDataFlavors( const css::datatransfer::DataFlavor& lhs,
+                            const css::datatransfer::DataFlavor& rhs );
 
 private:
-    css::uno::Sequence<css::datatransfer::DataFlavor> mFlavorList;
-    css::uno::Reference<css::datatransfer::XMimeContentTypeFactory> mrXMimeCntFactory;
-    std::shared_ptr<DataFlavorMapper> mDataFlavorMapper;
+    css::uno::Sequence< css::datatransfer::DataFlavor > mFlavorList;
+    css::uno::Reference< css::datatransfer::XMimeContentTypeFactory> mrXMimeCntFactory;
+    DataFlavorMapperPtr_t mDataFlavorMapper;
+    NSPasteboard* mPasteboard;
 };
 
 /* vim:set shiftwidth=4 softtabstop=4 expandtab: */

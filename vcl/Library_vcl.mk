@@ -692,6 +692,7 @@ $(eval $(call gb_Library_add_exception_objects,vcl,\
     vcl/ios/iOSTransferable \
     vcl/ios/DataFlavorMapping \
     vcl/ios/HtmlFmtFlt \
+    vcl/ios/PictToBmpFlt \
     vcl/quartz/CoreTextFont \
     vcl/quartz/CoreTextFontFace \
     vcl/quartz/SystemFontList \

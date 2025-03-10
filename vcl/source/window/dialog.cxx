@@ -21,7 +21,7 @@
 
 #ifdef IOS
 #include <premac.h>
-#include <UIKit/UIKit.h>
+#include <Cocoa/Cocoa.h>
 #include <postmac.h>
 #endif
 
@@ -705,7 +705,7 @@ bool Dialog::EventNotify( NotifyEvent& rNEvt )
 //taskbar, menus, etc.
 Size bestmaxFrameSizeForScreenSize(const Size &rScreenSize)
 {
-#ifndef IOS
+#ifndef MACOSX
     tools::Long w = rScreenSize.Width();
     if (w <= 800)
         w -= 15;

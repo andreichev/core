@@ -7775,8 +7775,8 @@ static bool initialize_uno(const OUString& aAppProgramURL)
 {
 #ifdef IOS
     // For iOS we already hardcode the inifile as "rc" in the .app directory.
-    rtl::Bootstrap::setIniFilename(aAppProgramURL + "/" SAL_CONFIGFILE("fundamental"));
-    xContext = cppu::defaultBootstrap_InitialComponentContext(aAppProgramURL + "/rc");
+    rtl::Bootstrap::setIniFilename(aAppProgramURL + "/../Resources/" SAL_CONFIGFILE("fundamental"));
+    xContext = cppu::defaultBootstrap_InitialComponentContext(aAppProgramURL + "/../Resources/rc");
 #elif defined MACOSX
     rtl::Bootstrap::setIniFilename(aAppProgramURL + "/../Resources/" SAL_CONFIGFILE("soffice"));
     xContext = cppu::defaultBootstrap_InitialComponentContext();
@@ -8374,9 +8374,9 @@ static int lo_initialize(LibreOfficeKit* pThis, const char* pAppPath, const char
     // to use that.
     NSString *bundlePath = [[NSBundle mainBundle] bundlePath];
 
-    int fd = open([[bundlePath stringByAppendingPathComponent:@"ICU.dat"] UTF8String], O_RDONLY);
+    int fd = open([[bundlePath stringByAppendingPathComponent:@"Contents/Resources/ICU.dat"] UTF8String], O_RDONLY);
     if (fd == -1)
-        NSLog(@"Could not open ICU data file %s", [[bundlePath stringByAppendingPathComponent:@"ICU.dat"] UTF8String]);
+        NSLog(@"Could not open ICU data file %s", [[bundlePath stringByAppendingPathComponent:@"Contents/Resources/ICU.dat"] UTF8String]);
     else
     {
         struct stat st;

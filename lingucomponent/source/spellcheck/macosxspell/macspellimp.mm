@@ -38,6 +38,9 @@
 #include <rtl/ref.hxx>
 #include <rtl/ustrbuf.hxx>
 
+#undef IOS
+#define MACOSX
+
 using namespace utl;
 using namespace osl;
 using namespace com::sun::star;

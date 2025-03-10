@@ -18,7 +18,7 @@
  */
 
 #include <premac.h>
-#include <UIKit/UIKit.h>
+#include <Cocoa/Cocoa.h>
 #include <postmac.h>
 
 #include "ios/iosinst.hxx"
