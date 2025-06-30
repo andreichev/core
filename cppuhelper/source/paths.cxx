@@ -65,13 +65,8 @@ OUString cppu::getUnoIniUri() {
     OUString uri("file:///instdir/program");
 #else
     OUString uri(get_this_libpath());
-#ifdef MACOSX
-    // We keep the URE dylibs directly in "Frameworks" (that is, LIBO_LIB_FOLDER) and unorc in
-    // "Resources/ure/etc" (LIBO_URE_ETC_FOLDER).
-    if (uri.endsWith( "/" LIBO_LIB_FOLDER ) )
-    {
-        uri = OUString::Concat(uri.subView( 0, uri.getLength() - (sizeof(LIBO_LIB_FOLDER)-1) )) + LIBO_URE_ETC_FOLDER;
-    }
+#ifdef IOS
+    uri += "/../Resources";
 #endif
 #endif
     return uri + "/" SAL_CONFIGFILE("uno");
